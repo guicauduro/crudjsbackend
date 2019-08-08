@@ -6,6 +6,7 @@ app.db = db //coloca o todas as configuracoes do banco (knex) no app.db, podendo
 
 consign()
     .then('./config/middlewares.js')
+    .then('./api/validation.js')
     .then('./api')
     .then('./config/routes.js')
     .into(app)
