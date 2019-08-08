@@ -51,9 +51,18 @@ module.exports = app => {
     const get = (req, res) => { // vai pegar todos os usuarios do sistema
         app.db('users')
             .select('id', 'name', 'email', 'admin') // ESSES NOMES ESTAO IGUAIS AOS NOMES DO BANCO DE DADOS, SE FOR DIFERENTE PRECISA TROCAR O THEN COM O 'MAP'
-            .then(user => res.json(users))
+            .then(users => res.json(users))
             .catch(err => res.status(500).send(err))
     }
 
-    return { save, get }
+    const getById = (req, res) => { // Busca usuario pelo ID
+        app.db('users')
+            .select('id', 'name', 'email', 'admin') 
+            .where({ id: req.params.id })
+            .first() // retorna apenas um unico resultado
+            .then(user => res.json(user))
+            .catch(err => res.status(500).send(err))
+    }
+
+    return { save, get, getById }
 }
