@@ -6,7 +6,7 @@ module.exports = {
     connection: {
       database: 'crud',
       user:     'postgres',
-      password: '123456'
+      password: '123456',
     },
     pool: {
       min: 2,
