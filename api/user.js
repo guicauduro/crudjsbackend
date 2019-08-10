@@ -38,6 +38,7 @@ module.exports = app => {
             app.db('users')
                 .update(user) // faz o update do usuario
                 .where({ id: user.id }) // onde o id sera igual ao user.id
+                .whereNull('deletedAt') //467
                 .then(_ => res.status(204).send()) // Envia a resposta se tudo der certo
                 .catch(err => res.status(500).send(err)) // caso caia no catch apresente o erro do 'lado servidor'
         } else {
@@ -51,6 +52,7 @@ module.exports = app => {
     const get = (req, res) => { // vai pegar todos os usuarios do sistema
         app.db('users')
             .select('id', 'name', 'email', 'admin') // ESSES NOMES ESTAO IGUAIS AOS NOMES DO BANCO DE DADOS, SE FOR DIFERENTE PRECISA TROCAR O THEN COM O 'MAP'
+            .whereNull('deletedAt') //467
             .then(users => res.json(users))
             .catch(err => res.status(500).send(err))
     }
@@ -59,10 +61,29 @@ module.exports = app => {
         app.db('users')
             .select('id', 'name', 'email', 'admin') 
             .where({ id: req.params.id })
+            .whereNull('deletedAt')
             .first() // retorna apenas um unico resultado
             .then(user => res.json(user))
             .catch(err => res.status(500).send(err))
     }
 
-    return { save, get, getById }
+    // SOFT DELETE 467
+    const remove = async (req, res) => {
+        try {
+            const articles = await app.db('articles')
+                .where({ userId: req.params.id })
+            notExistsOrError(articles, 'Usuário possui artigos.')
+
+            const rowsUpdated = await app.db('users')
+                .update({deletedAt: new Date()})
+                .where({ id: req.params.id })
+            existsOrError(rowsUpdated, 'Usuário não foi encontrado.')
+
+            res.status(204).send()
+        } catch(msg) {
+            res.status(400).send(msg)
+        }
+    }
+
+    return { save, get, getById, remove }
 }
