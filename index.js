@@ -9,9 +9,11 @@ app.db = db //coloca o todas as configuracoes do banco (knex) no app.db, podendo
 app.mongoose = mongoose
 
 consign()
+    .include('./config/passport.js')
     .then('./config/middlewares.js')
     .then('./api/validation.js')
     .then('./api')
+    .then('./schedule')
     .then('./config/routes.js')
     .into(app)
 
